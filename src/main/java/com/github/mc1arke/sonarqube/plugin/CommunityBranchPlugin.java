@@ -66,46 +66,24 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                     /* org.sonar.db.purge.PurgeConfiguration uses the value for the this property if it's configured, so it only
                     needs to be specified here, but doesn't need any additional classes to perform the relevant purge/cleanup
                      */
-                                  PropertyDefinition
-                                          .builder(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES)
-                                          .name("Number of days before purging inactive short living branches")
-                                          .description(
-                                                  "Short living branches are permanently deleted when there are no analysis for the configured number of days.")
-                                          .category(CoreProperties.CATEGORY_GENERAL)
-                                          .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER).defaultValue("30")
-                                          .type(PropertyType.INTEGER).build(),
+                        PropertyDefinition.builder(FutureProperties.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS)
+                            .deprecatedKey("sonar.dbcleaner.daysBeforeDeletingInactiveBranches")
+                            .name("Number of days before purging inactive short living branches").description(
+                            "Short living branches are permanently deleted when there are no analysis for the configured number of days.")
+                            .category(context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
+                                FutureProperties.CATEGORY_HOUSEKEEPING : CoreProperties.CATEGORY_GENERAL).subCategory(
+                            context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
+                                FutureProperties.SUBCATEGORY_GENERAL : LegacyProperties.SUBCATEGORY_DATABASE_CLEANER)
+                            .defaultValue("30")
+                            .type(PropertyType.INTEGER).build(),
 
-                                  //the name and description shown on the UI are automatically loaded from core.properties so don't need to be specified here
-                                  PropertyDefinition.builder(CoreProperties.LONG_LIVED_BRANCHES_REGEX)
-                                          .onQualifiers(Qualifiers.PROJECT).category(CoreProperties.CATEGORY_GENERAL)
-                                          .subCategory(CoreProperties.SUBCATEGORY_BRANCHES)
-                                          .defaultValue(CommunityBranchConfigurationLoader.DEFAULT_BRANCH_REGEX).build()
-
-
-                                 );
+                        //the name and description shown on the UI are automatically loaded from core.properties so don't need to be specified here
+                        PropertyDefinition.builder(LegacyProperties.LONG_LIVED_BRANCHES_REGEX).onQualifiers(Qualifiers.PROJECT)
+                            .category(CoreProperties.CATEGORY_GENERAL).subCategory(
+                            context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
+                                FutureProperties.SUBCATEGORY_BRANCHES_AND_PULL_REQUESTS : LegacyProperties.SUBCATEGORY_BRANCHES)
+                            .defaultValue(CommunityBranchConfigurationLoader.DEFAULT_BRANCH_REGEX).build());
         }
-
-        context.addExtensions(
-            /* org.sonar.db.purge.PurgeConfiguration uses the value for the this property if it's configured, so it only
-            needs to be specified here, but doesn't need any additional classes to perform the relevant purge/cleanup
-             */
-                PropertyDefinition.builder(FutureProperties.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS)
-                        .deprecatedKey("sonar.dbcleaner.daysBeforeDeletingInactiveBranches")
-                        .name("Number of days before purging inactive short living branches").description(
-                        "Short living branches are permanently deleted when there are no analysis for the configured number of days.")
-                        .category(context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
-                                  FutureProperties.CATEGORY_HOUSEKEEPING : CoreProperties.CATEGORY_GENERAL).subCategory(
-                        context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
-                        FutureProperties.SUBCATEGORY_GENERAL : LegacyProperties.SUBCATEGORY_DATABASE_CLEANER)
-                        .defaultValue("30")
-                        .type(PropertyType.INTEGER).build(),
-
-                //the name and description shown on the UI are automatically loaded from core.properties so don't need to be specified here
-                PropertyDefinition.builder(LegacyProperties.LONG_LIVED_BRANCHES_REGEX).onQualifiers(Qualifiers.PROJECT)
-                        .category(CoreProperties.CATEGORY_GENERAL).subCategory(
-                        context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
-                        FutureProperties.SUBCATEGORY_BRANCHES_AND_PULL_REQUESTS : LegacyProperties.SUBCATEGORY_BRANCHES)
-                        .defaultValue(CommunityBranchConfigurationLoader.DEFAULT_BRANCH_REGEX).build());
 
       if (SonarQubeSide.COMPUTE_ENGINE == context.getRuntime().getSonarQubeSide() ||
             SonarQubeSide.SERVER == context.getRuntime().getSonarQubeSide()) {
