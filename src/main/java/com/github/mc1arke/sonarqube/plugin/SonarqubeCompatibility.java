@@ -63,6 +63,7 @@ public interface SonarqubeCompatibility {
         /**
          * A marker for all features needed from SonarQube v8.0 that are no longer present in v8.1, or any features removed
          * in v8.1 that were still needed in 8.0.
+
          */
         interface Minor0 extends Major8 {
 

@@ -25,6 +25,8 @@ import org.sonarqube.ws.client.WsResponse;
 
 import java.lang.reflect.InvocationTargetException;
 
+import com.github.mc1arke.sonarqube.plugin.SonarqubeCompatibility;
+
 /**
  * Provides a way of invoking {@link ScannerWsClient} between SonarQube versions where it changed from being a class
  * to being an interface.

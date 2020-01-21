@@ -28,6 +28,7 @@ import java.util.Optional;
 /*package*/ class CommunityComponentKey extends BranchSupport.ComponentKey
         implements ComponentKeyCompatibility.ComponentKeyCompatibilityMajor7.ComponentKeyCompatibilityMinor9 {
 
+
     private final String key;
     private final String dbKey;
     private final String deprecatedBranchName;

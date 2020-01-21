@@ -43,6 +43,7 @@ public class CommunityBranchConfigurationLoader implements BranchConfigurationLo
                                                            BranchConfigurationLoaderCompatibility.BranchConfigurationLoaderCompatibilityMajor7.BranchConfigurationLoaderCompatibilityMinor8,
                                                            BranchConfigurationLoaderCompatibility.BranchConfigurationLoaderCompatibilityMajor7.BranchConfigurationLoaderCompatibilityMinor9 {
 
+
     public static final String DEFAULT_BRANCH_REGEX = "(branch|release).*";
 
 

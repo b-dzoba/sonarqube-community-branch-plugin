@@ -30,7 +30,6 @@ import java.util.List;
 public class CommunityBranchParamsValidator implements BranchParamsValidator,
                                                        BranchParamsValidatorCompatibility.BranchParamsValidatorCompatibilityMajor7.BranchParamsValidatorCompatibilityMinor9,
                                                        BranchParamsValidatorCompatibility.BranchParamsValidatorCompatibilityMajor8.BranchParamsValidatorCompatibilityMinor0 {
-
     private final GlobalConfiguration globalConfiguration;
 
     public CommunityBranchParamsValidator(GlobalConfiguration globalConfiguration) {

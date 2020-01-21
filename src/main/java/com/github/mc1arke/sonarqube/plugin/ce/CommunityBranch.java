@@ -30,7 +30,6 @@ import org.sonar.db.component.ComponentDto;
 public class CommunityBranch implements Branch, BranchCompatibility.BranchCompatibilityMajor7.BranchCompatibilityMinor9,
                                         BranchCompatibility.BranchCompatibilityMajor8.BranchCompatibilityMinor0,
                                         BranchCompatibility.BranchCompatibilityMajor8.BranchCompatibilityMinor1 {
-
     private final String name;
     private final BranchType branchType;
     private final boolean main;

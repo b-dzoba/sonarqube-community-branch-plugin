@@ -32,7 +32,7 @@ public class CommunityReportAnalysisComponentProviderTest {
     @Test
     public void testGetComponents() {
         List<Object> result = new CommunityReportAnalysisComponentProvider().getComponents();
-        assertEquals(1, result.size());
+        assertEquals(8, result.size());
         assertEquals(CommunityBranchLoaderDelegate.class, result.get(0));
     }
 }

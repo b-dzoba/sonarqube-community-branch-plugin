@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.component.BranchDao;
@@ -103,6 +104,7 @@ public class CommunityBranchLoaderDelegateTest {
         assertEquals(
                 BranchLoaderDelegateCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.SHORT,
                 branchArgumentCaptor.getValue().getType());
+      
         assertNull(branchArgumentCaptor.getValue().getMergeBranchUuid());
         assertEquals("branchKey", branchArgumentCaptor.getValue().getName());
         assertFalse(branchArgumentCaptor.getValue().isLegacyFeature());
@@ -169,6 +171,7 @@ public class CommunityBranchLoaderDelegateTest {
         assertEquals(
                 BranchLoaderDelegateCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.SHORT,
                 branchArgumentCaptor.getValue().getType());
+
         assertEquals("projectUuid", branchArgumentCaptor.getValue().getMergeBranchUuid());
         assertEquals("branch", branchArgumentCaptor.getValue().getName());
         assertFalse(branchArgumentCaptor.getValue().isLegacyFeature());
@@ -211,6 +214,7 @@ public class CommunityBranchLoaderDelegateTest {
         verify(metadataHolder).setBranch(branchArgumentCaptor.capture());
         assertEquals(BranchLoaderDelegateCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.LONG,
                      branchArgumentCaptor.getValue().getType());
+
         assertEquals("projectUuid", branchArgumentCaptor.getValue().getMergeBranchUuid());
         assertEquals("branch", branchArgumentCaptor.getValue().getName());
         assertFalse(branchArgumentCaptor.getValue().isLegacyFeature());
@@ -330,6 +334,7 @@ public class CommunityBranchLoaderDelegateTest {
         assertEquals(
                 BranchLoaderDelegateCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.SHORT,
                 branchArgumentCaptor.getValue().getType());
+
         assertEquals("targetBranchUuid", branchArgumentCaptor.getValue().getMergeBranchUuid());
         assertEquals("branch", branchArgumentCaptor.getValue().getName());
         assertFalse(branchArgumentCaptor.getValue().isMain());
@@ -367,7 +372,6 @@ public class CommunityBranchLoaderDelegateTest {
         MutableAnalysisMetadataHolder metadataHolder = mock(MutableAnalysisMetadataHolder.class);
         when(metadataHolder.getProject())
                 .thenReturn(new Project("projectUuid", "key", "name", "description", new ArrayList<>()));
-
 
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage(IsEqual.equalTo("Could not find target branch 'mergeBranchName' in project"));
