@@ -3,9 +3,7 @@ package com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.cloud;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.AnalysisDetails;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.PostAnalysisIssueVisitor;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.PullRequestBuildStatusDecorator;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server.BitbucketServerPullRequestDecorator;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.markup.MarkdownFormatterFactory;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
@@ -17,13 +15,12 @@ import org.sonar.core.issue.DefaultIssue;
 
 public class BitbucketCloudPullRequestDecorator implements PullRequestBuildStatusDecorator {
 
-  public static final String PULL_REQUEST_BITBUCKET_CLOUD_WORKSPACE = "com.github.mc1arke.sonarqube.plugin.branch.pullrequest.bitbucket.workspace";
-  public static final String PULL_REQUEST_BITBUCKET_CLOUD_REPOSITORY_SLUG = "com.github.mc1arke.sonarqube.plugin.branch.pullrequest.bitbucket.repositorySlug";
-  public static final String PULL_REQUEST_BITBUCKET_CLOUD_USERNAME = "com.github.mc1arke.sonarqube.plugin.branch.pullrequest.bitbucket.username";
-  public static final String PULL_REQUEST_BITBUCKET_CLOUD_PASSWORD = "com.github.mc1arke.sonarqube.plugin.branch.pullrequest.bitbucket.password";
+  public static final String PULL_REQUEST_BITBUCKET_CLOUD_WORKSPACE = "com.github.mc1arke.sonarqube.plugin.branch.pullrequest.bitbucket.cloud.workspace";
+  public static final String PULL_REQUEST_BITBUCKET_CLOUD_USERNAME = "com.github.mc1arke.sonarqube.plugin.branch.pullrequest.bitbucket.cloud.username";
+  public static final String PULL_REQUEST_BITBUCKET_CLOUD_PASSWORD = "com.github.mc1arke.sonarqube.plugin.branch.pullrequest.bitbucket.cloud.password";
 
 
-  private static final Logger LOGGER = Loggers.get(BitbucketServerPullRequestDecorator.class);
+  private static final Logger LOGGER = Loggers.get(BitbucketCloudPullRequestDecorator.class);
   private static final List<String> OPEN_ISSUE_STATUSES =
       Issue.STATUSES.stream().filter(s -> !Issue.STATUS_CLOSED.equals(s) && !Issue.STATUS_RESOLVED.equals(s))
           .collect(Collectors.toList());
@@ -42,16 +39,15 @@ public class BitbucketCloudPullRequestDecorator implements PullRequestBuildStatu
 
   @Override
   public void decorateQualityGateStatus(AnalysisDetails analysisDetails) {
-
-    LOGGER.info("starting to analyze with " + analysisDetails.toString());
+    LOGGER.info("Starting decoration");
 
     try {
       Configuration configuration = configurationRepository.getConfiguration();
       final String workspace = getMandatoryProperty(PULL_REQUEST_BITBUCKET_CLOUD_WORKSPACE, configuration);
-      final String repoSlug = getMandatoryProperty(PULL_REQUEST_BITBUCKET_CLOUD_REPOSITORY_SLUG, configuration);
       final String userSlug = getMandatoryProperty(PULL_REQUEST_BITBUCKET_CLOUD_USERNAME, configuration);
       final String password = getMandatoryProperty(PULL_REQUEST_BITBUCKET_CLOUD_PASSWORD, configuration);
 
+      final String repoSlug = analysisDetails.getAnalysisProjectKey();
       final String pullRequestId = analysisDetails.getBranchName();
 
       final boolean summaryCommentEnabled = Boolean.parseBoolean(getMandatoryProperty(PULL_REQUEST_COMMENT_SUMMARY_ENABLED, configuration));
@@ -61,10 +57,12 @@ public class BitbucketCloudPullRequestDecorator implements PullRequestBuildStatu
       BitbucketCloudApiClient client = new BitbucketCloudApiClient(workspace, repoSlug, pullRequestId, userSlug, password);
 
       if (deleteCommentsEnabled) {
+        LOGGER.debug("Deleting old comments");
         client.deleteComments();
       }
 
       if (summaryCommentEnabled) {
+        LOGGER.debug("Creating summary comment");
         String analysisSummary = analysisDetails.createAnalysisSummary(new MarkdownFormatterFactory());
         client.createComment(analysisSummary, null, null);
       }
@@ -73,6 +71,7 @@ public class BitbucketCloudPullRequestDecorator implements PullRequestBuildStatu
         List<PostAnalysisIssueVisitor.ComponentIssue> componentIssues = analysisDetails.getPostAnalysisIssueVisitor().getIssues().stream()
             .filter(i -> OPEN_ISSUE_STATUSES.contains(i.getIssue().status())).collect(Collectors.toList());
         for (PostAnalysisIssueVisitor.ComponentIssue componentIssue : componentIssues) {
+          LOGGER.debug("Creating issue comment");
           final DefaultIssue issue = componentIssue.getIssue();
           String analysisIssueSummary = analysisDetails.createAnalysisIssueSummary(componentIssue, new MarkdownFormatterFactory());
           String issuePath = analysisDetails.getSCMPathForIssue(componentIssue).orElse(null);
@@ -80,9 +79,11 @@ public class BitbucketCloudPullRequestDecorator implements PullRequestBuildStatu
           client.createComment(analysisIssueSummary, issuePath, issueLine);
         }
       }
-    } catch (IOException ex) {
-      throw new IllegalStateException("Could not decorate Pull Request on Bitbucket Cloud", ex);
+    } catch (Throwable ex) {
+      LOGGER.error("Decoration failed", ex);
     }
+
+    LOGGER.info("Decoration completed");
   }
 
   @Override

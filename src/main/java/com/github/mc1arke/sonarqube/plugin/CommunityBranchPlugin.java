@@ -37,12 +37,15 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.extension.CoreExtension;
 
 /**
  * @author Michael Clarke
  */
 public class CommunityBranchPlugin implements Plugin, CoreExtension {
+    private static final Logger LOGGER = Loggers.get(CommunityBranchPlugin.class);
 
     private static final String PULL_REQUEST_CATEGORY_LABEL = "Pull Request";
     private static final String GITHUB_INTEGRATION_SUBCATEGORY_LABEL = "Integration With Github";
@@ -58,6 +61,7 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
 
     @Override
     public void load(CoreExtension.Context context) {
+        LOGGER.info("Loading extensions for side " + context.getRuntime().getSonarQubeSide());
         if (SonarQubeSide.COMPUTE_ENGINE == context.getRuntime().getSonarQubeSide()) {
             context.addExtensions(CommunityReportAnalysisComponentProvider.class, CommunityBranchEditionProvider.class);
         } else if (SonarQubeSide.SERVER == context.getRuntime().getSonarQubeSide()) {
@@ -85,12 +89,12 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                             .defaultValue(CommunityBranchConfigurationLoader.DEFAULT_BRANCH_REGEX).build());
         }
 
-      if (SonarQubeSide.COMPUTE_ENGINE == context.getRuntime().getSonarQubeSide() ||
+        if (SonarQubeSide.COMPUTE_ENGINE == context.getRuntime().getSonarQubeSide() ||
             SonarQubeSide.SERVER == context.getRuntime().getSonarQubeSide()) {
             context.addExtensions(
                     PropertyDefinition.builder("sonar.pullrequest.provider").category(PULL_REQUEST_CATEGORY_LABEL)
                             .subCategory("General").onQualifiers(Qualifiers.PROJECT).name("Provider")
-                            .type(PropertyType.SINGLE_SELECT_LIST).options("Github", "BitbucketServer", "GitlabServer").build(),
+                            .type(PropertyType.SINGLE_SELECT_LIST).options("Github", "BitbucketServer", "BitbucketCloud", "GitlabServer").build(),
 
                     PropertyDefinition.builder("sonar.alm.github.app.privateKey.secured")
                             .category(PULL_REQUEST_CATEGORY_LABEL).subCategory(GITHUB_INTEGRATION_SUBCATEGORY_LABEL)
@@ -140,8 +144,11 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                             .description("User slug for the comment user. Needed only for comment deletion.").type(PropertyType.STRING).build(),
 
                     PropertyDefinition.builder(BitbucketServerPullRequestDecorator.PULL_REQUEST_BITBUCKET_REPOSITORY_SLUG)
-                            .category(PULL_REQUEST_CATEGORY_LABEL).subCategory(BITBUCKET_INTEGRATION_SUBCATEGORY_LABEL).onlyOnQualifiers(Qualifiers.PROJECT).name("Repository Slug").description(
-                            "Repository Slug see for example https://docs.atlassian.com/bitbucket-server/rest/latest/bitbucket-rest.html")
+                            .category(PULL_REQUEST_CATEGORY_LABEL)
+                            .subCategory(BITBUCKET_INTEGRATION_SUBCATEGORY_LABEL)
+                            .onlyOnQualifiers(Qualifiers.PROJECT)
+                            .name("Repository Slug")
+                            .description("Repository Slug see for example https://docs.atlassian.com/bitbucket-server/rest/latest/bitbucket-rest.html")
                             .type(PropertyType.STRING).build(),
 
                     PropertyDefinition.builder(BitbucketServerPullRequestDecorator.PULL_REQUEST_BITBUCKET_USER_SLUG).category(PULL_REQUEST_CATEGORY_LABEL).subCategory(BITBUCKET_INTEGRATION_SUBCATEGORY_LABEL)
@@ -183,18 +190,9 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                     PropertyDefinition.builder(BitbucketCloudPullRequestDecorator.PULL_REQUEST_BITBUCKET_CLOUD_WORKSPACE)
                             .category(PULL_REQUEST_CATEGORY_LABEL)
                             .subCategory(BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL)
-                            .onlyOnQualifiers(Qualifiers.PROJECT)
+                            .onQualifiers(Qualifiers.PROJECT)
                             .name("Workspace")
                             .description("Workspace")
-                            .type(PropertyType.STRING)
-                            .build(),
-
-                    PropertyDefinition.builder(BitbucketCloudPullRequestDecorator.PULL_REQUEST_BITBUCKET_CLOUD_REPOSITORY_SLUG)
-                            .category(PULL_REQUEST_CATEGORY_LABEL)
-                            .subCategory(BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL)
-                            .onlyOnQualifiers(Qualifiers.PROJECT)
-                            .name("Repository slug")
-                            .description("Repository slug")
                             .type(PropertyType.STRING)
                             .build(),
 
@@ -213,7 +211,7 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                             .onQualifiers(Qualifiers.PROJECT)
                             .name("App password")
                             .description("App password")
-                            .type(PropertyType.STRING)
+                            .type(PropertyType.PASSWORD)
                             .build()
             );
         }
