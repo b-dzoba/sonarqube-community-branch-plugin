@@ -21,6 +21,7 @@ package com.github.mc1arke.sonarqube.plugin;
 import com.github.mc1arke.sonarqube.plugin.ce.CommunityBranchEditionProvider;
 import com.github.mc1arke.sonarqube.plugin.ce.CommunityReportAnalysisComponentProvider;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.PullRequestBuildStatusDecorator;
+import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.cloud.BitbucketCloudPullRequestDecorator;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server.BitbucketServerPullRequestDecorator;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.gitlab.GitlabServerPullRequestDecorator;
 import com.github.mc1arke.sonarqube.plugin.scanner.CommunityBranchConfigurationLoader;
@@ -47,6 +48,7 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
     private static final String GITHUB_INTEGRATION_SUBCATEGORY_LABEL = "Integration With Github";
     private static final String GENERAL = "General";
     private static final String BITBUCKET_INTEGRATION_SUBCATEGORY_LABEL = "Integration With Bitbucket";
+    private static final String BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL = "Integration With Bitbucket Cloud";
     private static final String GITLAB_INTEGRATION_SUBCATEGORY_LABEL = "Integration With Gitlab";
 
     @Override
@@ -175,6 +177,42 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                             .onlyOnQualifiers(Qualifiers.PROJECT)
                             .name("Repository Slug for the Gitlab (Server or Cloud) instance")
                             .description("The repository slug can be either in the form of user/repo or it can be the Project ID")
+                            .type(PropertyType.STRING)
+                            .build(),
+
+                    PropertyDefinition.builder(BitbucketCloudPullRequestDecorator.PULL_REQUEST_BITBUCKET_CLOUD_WORKSPACE)
+                            .category(PULL_REQUEST_CATEGORY_LABEL)
+                            .subCategory(BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL)
+                            .onlyOnQualifiers(Qualifiers.PROJECT)
+                            .name("Workspace")
+                            .description("Workspace")
+                            .type(PropertyType.STRING)
+                            .build(),
+
+                    PropertyDefinition.builder(BitbucketCloudPullRequestDecorator.PULL_REQUEST_BITBUCKET_CLOUD_REPOSITORY_SLUG)
+                            .category(PULL_REQUEST_CATEGORY_LABEL)
+                            .subCategory(BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL)
+                            .onlyOnQualifiers(Qualifiers.PROJECT)
+                            .name("Repository slug")
+                            .description("Repository slug")
+                            .type(PropertyType.STRING)
+                            .build(),
+
+                    PropertyDefinition.builder(BitbucketCloudPullRequestDecorator.PULL_REQUEST_BITBUCKET_CLOUD_USERNAME)
+                            .category(PULL_REQUEST_CATEGORY_LABEL)
+                            .subCategory(BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL)
+                            .onQualifiers(Qualifiers.PROJECT)
+                            .name("Username")
+                            .description("Username")
+                            .type(PropertyType.STRING)
+                            .build(),
+
+                    PropertyDefinition.builder(BitbucketCloudPullRequestDecorator.PULL_REQUEST_BITBUCKET_CLOUD_PASSWORD)
+                            .category(PULL_REQUEST_CATEGORY_LABEL)
+                            .subCategory(BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL)
+                            .onQualifiers(Qualifiers.PROJECT)
+                            .name("App password")
+                            .description("App password")
                             .type(PropertyType.STRING)
                             .build()
             );
