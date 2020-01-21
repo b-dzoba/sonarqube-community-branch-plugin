@@ -69,7 +69,9 @@ public class CommunityBranchTest {
 
     @Test
     public void testGenerateKeyNonMainBranchNonNullFileOfPathContentShortBranch() {
-        CommunityBranch testCase = new CommunityBranch("name", BranchType.SHORT, false, null, null, null);
+        CommunityBranch testCase = new CommunityBranch("name",
+                                                       BranchLoaderDelegateCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.SHORT,
+                                                       false, null, null, null);
 
         assertEquals("projectKey:path:BRANCH:name", testCase.generateKey("projectKey", "path"));
     }
@@ -87,7 +89,9 @@ public class CommunityBranchTest {
                 .expectMessage(IsEqual.equalTo("Only a branch of type PULL_REQUEST can have a pull request ID"));
         expectedException.expect(IllegalStateException.class);
 
-        new CommunityBranch("name", BranchType.SHORT, false, null, "prKey", null).getPullRequestKey();
+        new CommunityBranch("name",
+                            BranchLoaderDelegateCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.SHORT,
+                            false, null, "prKey", null).getPullRequestKey();
     }
 
 }

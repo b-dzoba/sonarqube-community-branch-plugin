@@ -18,8 +18,8 @@
  */
 package com.github.mc1arke.sonarqube.plugin.scanner;
 
+import com.github.mc1arke.sonarqube.plugin.CommunityBranchPlugin;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -39,7 +39,10 @@ import java.util.function.Supplier;
 /**
  * @author Michael Clarke
  */
-public class CommunityBranchConfigurationLoader implements BranchConfigurationLoader, BranchConfigurationLoaderCompatibility.BranchConfigurationLoaderCompatibilityMajor7.BranchConfigurationLoaderCompatibilityMinor8, BranchConfigurationLoaderCompatibility.BranchConfigurationLoaderCompatibilityMajor7.BranchConfigurationLoaderCompatibilityMinor9 {
+public class CommunityBranchConfigurationLoader implements BranchConfigurationLoader,
+                                                           BranchConfigurationLoaderCompatibility.BranchConfigurationLoaderCompatibilityMajor7.BranchConfigurationLoaderCompatibilityMinor8,
+                                                           BranchConfigurationLoaderCompatibility.BranchConfigurationLoaderCompatibilityMajor7.BranchConfigurationLoaderCompatibilityMinor9 {
+
 
     public static final String DEFAULT_BRANCH_REGEX = "(branch|release).*";
 
@@ -66,8 +69,8 @@ public class CommunityBranchConfigurationLoader implements BranchConfigurationLo
         }
         if (BRANCH_ANALYSIS_PARAMETERS.stream().anyMatch(localSettings::containsKey)) {
             return createBranchConfiguration(localSettings.get(ScannerProperties.BRANCH_NAME),
-                                             localSettings.get(ScannerProperties.BRANCH_TARGET),
-                                             supplier.get().get(CoreProperties.LONG_LIVED_BRANCHES_REGEX),
+                                             localSettings.get(ScannerProperties.BRANCH_TARGET), supplier.get()
+                                                     .get(CommunityBranchPlugin.LegacyProperties.LONG_LIVED_BRANCHES_REGEX),
                                              projectBranches);
         } else if (PULL_REQUEST_ANALYSIS_PARAMETERS.stream().anyMatch(localSettings::containsKey)) {
             return createPullRequestConfiguration(localSettings.get(ScannerProperties.PULL_REQUEST_KEY),
@@ -94,8 +97,8 @@ public class CommunityBranchConfigurationLoader implements BranchConfigurationLo
         }
         if (BRANCH_ANALYSIS_PARAMETERS.stream().anyMatch(localSettings::containsKey)) {
             return createBranchConfiguration(localSettings.get(ScannerProperties.BRANCH_NAME),
-                                             localSettings.get(ScannerProperties.BRANCH_TARGET),
-                                             localSettings.get(CoreProperties.LONG_LIVED_BRANCHES_REGEX),
+                                             localSettings.get(ScannerProperties.BRANCH_TARGET), localSettings
+                                                     .get(CommunityBranchPlugin.LegacyProperties.LONG_LIVED_BRANCHES_REGEX),
                                              projectBranches);
         } else if (PULL_REQUEST_ANALYSIS_PARAMETERS.stream().anyMatch(localSettings::containsKey)) {
             return createPullRequestConfiguration(localSettings.get(ScannerProperties.PULL_REQUEST_KEY),
@@ -114,9 +117,9 @@ public class CommunityBranchConfigurationLoader implements BranchConfigurationLo
         return (null == name || "master".equals(name)) && (null == target || target.equals(name));
     }
 
-    private static BranchConfiguration createBranchConfiguration(String branchName, String branchTarget,
-                                                                 String longLivedBranchesRegex,
-                                                                 ProjectBranches branches) {
+    private static CommunityBranchConfiguration createBranchConfiguration(String branchName, String branchTarget,
+                                                                          String longLivedBranchesRegex,
+                                                                          ProjectBranches branches) {
         if (null == branchTarget || branchTarget.isEmpty()) {
             branchTarget = branches.defaultBranchName();
         }
@@ -129,7 +132,7 @@ public class CommunityBranchConfigurationLoader implements BranchConfigurationLo
             return new CommunityBranchConfiguration(branchName, branchType, targetBranch.name(), branchTarget, null);
         }
 
-        if (BranchType.LONG == existingBranch.type()) {
+        if (BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG == existingBranch.type()) {
             return new CommunityBranchConfiguration(branchName, existingBranch.type(), branchName, null, null);
         } else {
             return new CommunityBranchConfiguration(branchName, existingBranch.type(), branchTarget, branchTarget,
@@ -138,19 +141,23 @@ public class CommunityBranchConfigurationLoader implements BranchConfigurationLo
     }
 
     private static BranchType computeBranchType(String longLivedBranchesRegex, String branchName) {
+        if (null != BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor1.BRANCH) {
+            return BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor1.BRANCH;
+        }
         if (null == longLivedBranchesRegex) {
             longLivedBranchesRegex = DEFAULT_BRANCH_REGEX;
         }
         if (branchName.matches(longLivedBranchesRegex)) {
-            return BranchType.LONG;
+            return BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG;
         } else {
-            return BranchType.SHORT;
+            return BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.SHORT;
         }
     }
 
-    private static BranchConfiguration createPullRequestConfiguration(String pullRequestKey, String pullRequestBranch,
-                                                                      String pullRequestBase,
-                                                                      ProjectBranches branches) {
+    private static CommunityBranchConfiguration createPullRequestConfiguration(String pullRequestKey,
+                                                                               String pullRequestBranch,
+                                                                               String pullRequestBase,
+                                                                               ProjectBranches branches) {
         if (null == pullRequestBase || pullRequestBase.isEmpty()) {
             pullRequestBase = branches.defaultBranchName();
         }
@@ -168,11 +175,14 @@ public class CommunityBranchConfigurationLoader implements BranchConfigurationLo
                     String.format("Target branch '%s' does not exist", targetBranch)));
         }
 
-        if (BranchType.LONG == target.type()) {
+        if ((null != BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG &&
+             BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG == target.type()) ||
+            (null != BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor1.BRANCH &&
+             BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor1.BRANCH == target.type())) {
             return target;
         } else {
             throw MessageException.of("Could not target requested branch", new IllegalStateException(
-                    String.format("Expected branch type of %s but got %s", BranchType.LONG.name(),
+                    String.format("Expected branch type of LONG but got %s",
                                   target.type().name())));
         }
     }

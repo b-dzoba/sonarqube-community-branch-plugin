@@ -34,7 +34,7 @@ import java.util.Optional;
 /**
  * @author Michael Clarke
  */
-public class CommunityBranchLoaderDelegate implements BranchLoaderDelegate {
+public class CommunityBranchLoaderDelegate implements BranchLoaderDelegate, BranchLoaderDelegateCompatibility {
 
     private final DbClient dbClient;
     private final MutableAnalysisMetadataHolder metadataHolder;
@@ -67,7 +67,9 @@ public class CommunityBranchLoaderDelegate implements BranchLoaderDelegate {
                 throw new IllegalStateException("Could not find main branch");
             }
         } else {
-            String targetBranch = StringUtils.trimToNull(metadata.getMergeBranchName());
+            String targetBranch = StringUtils.trimToNull(
+                    MetadataCompatibility.MetadataCompatibilityMajor8.MetadataCompatibilityMinor0
+                            .getMergeBranchName(metadata));
             ScannerReport.Metadata.BranchType branchType = metadata.getBranchType();
             if (null == targetBranchName) {
                 targetBranchName = targetBranch;
@@ -75,8 +77,12 @@ public class CommunityBranchLoaderDelegate implements BranchLoaderDelegate {
 
             if (ScannerReport.Metadata.BranchType.PULL_REQUEST == branchType) {
                 return createPullRequest(metadata, dbClient, branchName, projectUuid, targetBranch, targetBranchName);
-            } else if (ScannerReport.Metadata.BranchType.LONG == branchType ||
-                       ScannerReport.Metadata.BranchType.SHORT == branchType) {
+            } else if (MetadataCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.LONG ==
+                       branchType ||
+                       MetadataCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.SHORT ==
+                       branchType ||
+                       MetadataCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor1.BRANCH ==
+                       branchType) {
                 return createBranch(dbClient, branchName, projectUuid, targetBranch, branchType, targetBranchName);
             } else {
                 throw new IllegalStateException(String.format("Invalid branch type '%s'", branchType.name()));
@@ -113,8 +119,16 @@ public class CommunityBranchLoaderDelegate implements BranchLoaderDelegate {
                         String.format("Could not find target branch '%s' in project", targetBranch));
             }
         }
-        return new CommunityBranch(branchName, ScannerReport.Metadata.BranchType.LONG == branchType ? BranchType.LONG :
-                                               BranchType.SHORT,
+        BranchType targetBranchType;
+        if (MetadataCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor1.BRANCH == branchType) {
+            targetBranchType = BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor1.BRANCH;
+        } else if (MetadataCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.LONG ==
+                   branchType) {
+            targetBranchType = BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.LONG;
+        } else {
+            targetBranchType = BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.SHORT;
+        }
+        return new CommunityBranch(branchName, targetBranchType,
                                    findBranchByKey(projectUuid, branchName, dbClient).map(BranchDto::isMain)
                                            .orElse(false), targetUuid, null, targetBranchName);
     }

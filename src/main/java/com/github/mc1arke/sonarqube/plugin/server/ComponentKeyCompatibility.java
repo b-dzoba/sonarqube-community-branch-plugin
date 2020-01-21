@@ -26,7 +26,8 @@ public interface ComponentKeyCompatibility extends SonarqubeCompatibility {
 
     interface ComponentKeyCompatibilityMajor7 extends ComponentKeyCompatibility, SonarqubeCompatibility.Major7 {
 
-        interface ComponentKeyCompatibilityMinor9 extends ComponentKeyCompatibilityMajor7, SonarqubeCompatibility.Major7.Minor9 {
+        interface ComponentKeyCompatibilityMinor9
+                extends ComponentKeyCompatibilityMajor7, SonarqubeCompatibility.Major7.Minor9 {
 
             Optional<String> getDeprecatedBranchName();
         }

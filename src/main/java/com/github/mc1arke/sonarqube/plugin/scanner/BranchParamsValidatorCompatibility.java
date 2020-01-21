@@ -24,9 +24,11 @@ import java.util.List;
 
 public interface BranchParamsValidatorCompatibility extends SonarqubeCompatibility {
 
-    interface BranchParamsValidatorCompatibilityMajor7 extends BranchParamsValidatorCompatibility, SonarqubeCompatibility.Major7 {
+    interface BranchParamsValidatorCompatibilityMajor7
+            extends BranchParamsValidatorCompatibility, SonarqubeCompatibility.Major7 {
 
-        interface BranchParamsValidatorCompatibilityMinor9 extends BranchParamsValidatorCompatibilityMajor7, SonarqubeCompatibility.Major7.Minor9 {
+        interface BranchParamsValidatorCompatibilityMinor9
+                extends BranchParamsValidatorCompatibilityMajor7, SonarqubeCompatibility.Major7.Minor9 {
 
             void validate(List<String> validationMessages, String deprecatedBranchName);
 
@@ -34,10 +36,13 @@ public interface BranchParamsValidatorCompatibility extends SonarqubeCompatibili
 
     }
 
-    interface BranchParamsValidatorCompatibilityMajor8 extends SonarqubeCompatibility.Major8, BranchParamsValidatorCompatibility {
+    interface BranchParamsValidatorCompatibilityMajor8
+            extends SonarqubeCompatibility.Major8, BranchParamsValidatorCompatibility {
 
-        interface BranchParamsValidatorCompatibilityMinor0 extends BranchParamsValidatorCompatibilityMajor8, SonarqubeCompatibility.Major8.Minor0 {
+        interface BranchParamsValidatorCompatibilityMinor0
+                extends BranchParamsValidatorCompatibilityMajor8, SonarqubeCompatibility.Major8.Minor0 {
 
+            // forward compatibility for SonarQube 8.0
             void validate(List<String> validationMessages);
         }
     }

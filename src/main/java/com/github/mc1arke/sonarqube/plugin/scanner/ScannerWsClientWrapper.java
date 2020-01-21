@@ -18,6 +18,7 @@
  */
 package com.github.mc1arke.sonarqube.plugin.scanner;
 
+import com.github.mc1arke.sonarqube.plugin.SonarqubeCompatibility;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;

@@ -24,7 +24,9 @@ import org.sonar.scanner.scan.branch.BranchType;
 /**
  * @author Michael Clarke
  */
-public class CommunityBranchConfiguration implements BranchConfiguration {
+public class CommunityBranchConfiguration implements BranchConfiguration,
+                                                     BranchConfigurationCompatibility.BranchConfigurationCompatibilityMajor8.BranchConfigurationCompatibilityMinor0,
+                                                     BranchConfigurationCompatibility.BranchConfigurationCompatibilityMajor8.BranchConfigurationCompatibilityMinor1 {
 
     private final String branchName;
     private final BranchType branchType;
@@ -50,6 +52,11 @@ public class CommunityBranchConfiguration implements BranchConfiguration {
     @Override
     public String branchName() {
         return branchName;
+    }
+
+    @Override
+    public String referenceBranchName() {
+        return longLivingSonarReferenceBranch;
     }
 
     @Override

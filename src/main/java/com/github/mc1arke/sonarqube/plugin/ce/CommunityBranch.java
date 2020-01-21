@@ -27,8 +27,9 @@ import org.sonar.db.component.ComponentDto;
 /**
  * @author Michael Clarke
  */
-public class CommunityBranch implements Branch, BranchCompatibility.BranchCompatibilityMajor7.BranchCompatibilityMinor9 {
-
+public class CommunityBranch implements Branch, BranchCompatibility.BranchCompatibilityMajor7.BranchCompatibilityMinor9,
+                                        BranchCompatibility.BranchCompatibilityMajor8.BranchCompatibilityMinor0,
+                                        BranchCompatibility.BranchCompatibilityMajor8.BranchCompatibilityMinor1 {
     private final String name;
     private final BranchType branchType;
     private final boolean main;
@@ -53,6 +54,11 @@ public class CommunityBranch implements Branch, BranchCompatibility.BranchCompat
     }
 
     @Override
+    public String getReferenceBranchUuid() {
+        return mergeBranchUuid;
+    }
+
+    @Override
     public BranchType getType() {
         return branchType;
     }
@@ -69,7 +75,7 @@ public class CommunityBranch implements Branch, BranchCompatibility.BranchCompat
 
     @Override
     public String getMergeBranchUuid() {
-        return mergeBranchUuid;
+        return getReferenceBranchUuid();
     }
 
     @Override

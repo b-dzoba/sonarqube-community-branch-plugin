@@ -36,7 +36,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.config.PurgeConstants;
+import org.sonar.api.utils.Version;
 import org.sonar.core.extension.CoreExtension;
 
 /**
@@ -66,26 +66,26 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                     /* org.sonar.db.purge.PurgeConfiguration uses the value for the this property if it's configured, so it only
                     needs to be specified here, but doesn't need any additional classes to perform the relevant purge/cleanup
                      */
-                                  PropertyDefinition
-                                          .builder(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES)
-                                          .name("Number of days before purging inactive short living branches")
-                                          .description(
-                                                  "Short living branches are permanently deleted when there are no analysis for the configured number of days.")
-                                          .category(CoreProperties.CATEGORY_GENERAL)
-                                          .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER).defaultValue("30")
-                                          .type(PropertyType.INTEGER).build(),
+                        PropertyDefinition.builder(FutureProperties.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS)
+                            .deprecatedKey("sonar.dbcleaner.daysBeforeDeletingInactiveBranches")
+                            .name("Number of days before purging inactive short living branches").description(
+                            "Short living branches are permanently deleted when there are no analysis for the configured number of days.")
+                            .category(context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
+                                FutureProperties.CATEGORY_HOUSEKEEPING : CoreProperties.CATEGORY_GENERAL).subCategory(
+                            context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
+                                FutureProperties.SUBCATEGORY_GENERAL : LegacyProperties.SUBCATEGORY_DATABASE_CLEANER)
+                            .defaultValue("30")
+                            .type(PropertyType.INTEGER).build(),
 
-                                  //the name and description shown on the UI are automatically loaded from core.properties so don't need to be specified here
-                                  PropertyDefinition.builder(CoreProperties.LONG_LIVED_BRANCHES_REGEX)
-                                          .onQualifiers(Qualifiers.PROJECT).category(CoreProperties.CATEGORY_GENERAL)
-                                          .subCategory(CoreProperties.SUBCATEGORY_BRANCHES)
-                                          .defaultValue(CommunityBranchConfigurationLoader.DEFAULT_BRANCH_REGEX).build()
-
-
-                                 );
+                        //the name and description shown on the UI are automatically loaded from core.properties so don't need to be specified here
+                        PropertyDefinition.builder(LegacyProperties.LONG_LIVED_BRANCHES_REGEX).onQualifiers(Qualifiers.PROJECT)
+                            .category(CoreProperties.CATEGORY_GENERAL).subCategory(
+                            context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
+                                FutureProperties.SUBCATEGORY_BRANCHES_AND_PULL_REQUESTS : LegacyProperties.SUBCATEGORY_BRANCHES)
+                            .defaultValue(CommunityBranchConfigurationLoader.DEFAULT_BRANCH_REGEX).build());
         }
 
-        if (SonarQubeSide.COMPUTE_ENGINE == context.getRuntime().getSonarQubeSide() ||
+      if (SonarQubeSide.COMPUTE_ENGINE == context.getRuntime().getSonarQubeSide() ||
             SonarQubeSide.SERVER == context.getRuntime().getSonarQubeSide()) {
             context.addExtensions(
                     PropertyDefinition.builder("sonar.pullrequest.provider").category(PULL_REQUEST_CATEGORY_LABEL)
@@ -224,6 +224,35 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
         if (SonarQubeSide.SCANNER == context.getRuntime().getSonarQubeSide()) {
             context.addExtensions(CommunityProjectBranchesLoader.class, CommunityProjectPullRequestsLoader.class,
                                   CommunityBranchConfigurationLoader.class, CommunityBranchParamsValidator.class);
+        }
+    }
+
+    public static class LegacyProperties implements SonarqubeCompatibility.Major8.Minor0 {
+
+        public static final String LONG_LIVED_BRANCHES_REGEX = "sonar.branch.longLivedBranches.regex";
+
+        private static final String SUBCATEGORY_BRANCHES = "Branches";
+
+        private static final String SUBCATEGORY_DATABASE_CLEANER = "databaseCleaner";
+
+        private LegacyProperties() {
+            super();
+        }
+
+    }
+
+    private static class FutureProperties implements SonarqubeCompatibility.Major8.Minor1 {
+        private static final String SUBCATEGORY_BRANCHES_AND_PULL_REQUESTS = "branchesAndPullRequests";
+
+        private static final String SUBCATEGORY_GENERAL = "general";
+
+        private static final String CATEGORY_HOUSEKEEPING = "housekeeping";
+
+        private static final String DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS =
+                "sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs";
+
+        private FutureProperties() {
+            super();
         }
     }
 }

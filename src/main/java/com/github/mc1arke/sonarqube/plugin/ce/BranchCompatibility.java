@@ -29,4 +29,19 @@ public interface BranchCompatibility extends SonarqubeCompatibility {
             boolean isLegacyFeature();
         }
     }
+
+    interface BranchCompatibilityMajor8 extends BranchCompatibility, SonarqubeCompatibility.Major8 {
+
+        interface BranchCompatibilityMinor0 extends BranchCompatibilityMajor8, SonarqubeCompatibility.Major8.Minor0 {
+
+            String getMergeBranchUuid();
+
+        }
+
+        interface BranchCompatibilityMinor1 extends BranchCompatibilityMajor8, SonarqubeCompatibility.Major8.Minor1 {
+
+            String getReferenceBranchUuid();
+
+        }
+    }
 }

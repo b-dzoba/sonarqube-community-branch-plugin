@@ -18,16 +18,14 @@
  */
 package com.github.mc1arke.sonarqube.plugin.scanner;
 
+import com.github.mc1arke.sonarqube.plugin.CommunityBranchPlugin;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.core.IsEqual;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchInfo;
-import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.DefaultBranchConfiguration;
 import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonar.scanner.scan.branch.ProjectPullRequests;
@@ -37,9 +35,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -169,17 +166,18 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("masterBranchInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("master")).thenReturn(mockTargetBranchInfo);
 
-        BranchConfiguration result = testCase.load(parameters, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("master", result.targetBranchName());
         assertEquals("feature/shortLivedFeatureBranch", result.branchName());
         assertEquals("masterBranchInfo", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
 
         expectedException
                 .expectMessage(IsEqual.equalTo("Only a branch of type PULL_REQUEST can have a Pull Request key"));
@@ -196,18 +194,19 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("defaultBranchInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("masterxxx")).thenReturn(mockTargetBranchInfo);
         when(projectBranches.defaultBranchName()).thenReturn("masterxxx");
 
-        BranchConfiguration result = testCase.load(parameters, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("masterxxx", result.targetBranchName());
         assertEquals("feature/shortLivedBranch", result.branchName());
         assertEquals("defaultBranchInfo", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
@@ -219,18 +218,19 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("defaultBranchInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("masterxxx")).thenReturn(mockTargetBranchInfo);
         when(projectBranches.defaultBranchName()).thenReturn("masterxxx");
 
-        BranchConfiguration result = testCase.load(parameters, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("masterxxx", result.targetBranchName());
         assertEquals("feature/shortLivedBranch", result.branchName());
         assertEquals("defaultBranchInfo", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
@@ -241,7 +241,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("defaultBranchInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
 
@@ -255,6 +256,7 @@ public class CommunityBranchConfigurationLoaderTest {
 
     @Test
     public void testShortLivedBranchInvalidTarget() {
+        assumeNotNull(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
         CommunityBranchConfigurationLoader testCase = new CommunityBranchConfigurationLoader();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "feature/shortLivedBranch");
@@ -262,7 +264,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("feature/otherShortLivedBranch");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.SHORT);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.SHORT);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("feature/otherShortLivedBranch")).thenReturn(mockTargetBranchInfo);
@@ -305,6 +308,7 @@ public class CommunityBranchConfigurationLoaderTest {
 
     @Test
     public void testShortLivedBranchExistingSourceAllParametersCorrect() {
+        assumeNotNull(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
         CommunityBranchConfigurationLoader testCase = new CommunityBranchConfigurationLoader();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "feature/shortLivedBranch");
@@ -312,39 +316,44 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("longLivedBranch");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         BranchInfo mockSourceBranchInfo = mock(BranchInfo.class);
         when(mockSourceBranchInfo.name()).thenReturn("shortLivedBranch");
-        when(mockSourceBranchInfo.type()).thenReturn(BranchType.SHORT);
+        when(mockSourceBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.SHORT);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("longLivedBranch")).thenReturn(mockTargetBranchInfo);
         when(projectBranches.get("feature/shortLivedBranch")).thenReturn(mockSourceBranchInfo);
 
-        BranchConfiguration result = testCase.load(parameters, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("longLivedBranch", result.targetBranchName());
         assertEquals("feature/shortLivedBranch", result.branchName());
         assertEquals("longLivedBranch", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
     public void testExistingShortLivedBranchOnlySourceParametersRetargetMaster() {
+        assumeNotNull(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
         CommunityBranchConfigurationLoader testCase = new CommunityBranchConfigurationLoader();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "feature/shortLivedBranch");
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("longLivedBranch");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         BranchInfo mockSourceBranchInfo = mock(BranchInfo.class);
         when(mockSourceBranchInfo.name()).thenReturn("shortLivedBranch");
         when(mockSourceBranchInfo.branchTargetName()).thenReturn("otherLongLivedBranch");
-        when(mockSourceBranchInfo.type()).thenReturn(BranchType.SHORT);
+        when(mockSourceBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.SHORT);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
@@ -352,12 +361,12 @@ public class CommunityBranchConfigurationLoaderTest {
         when(projectBranches.get("feature/shortLivedBranch")).thenReturn(mockSourceBranchInfo);
         when(projectBranches.defaultBranchName()).thenReturn("master");
 
-        BranchConfiguration result = testCase.load(parameters, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("master", result.targetBranchName());
         assertEquals("feature/shortLivedBranch", result.branchName());
         assertEquals("master", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
@@ -368,18 +377,19 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("longLivedBranch");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("longLivedBranch")).thenReturn(mockTargetBranchInfo);
 
-        BranchConfiguration result = testCase.load(parameters, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, projectBranches, mock(ProjectPullRequests.class));
 
         assertNull(result.targetBranchName());
         assertEquals("longLivedBranch", result.branchName());
         assertEquals("longLivedBranch", result.longLivingSonarReferenceBranch());
-        assertFalse(result.isShortOrPullRequest());
     }
 
     @Test
@@ -392,18 +402,19 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("targetInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("target")).thenReturn(mockTargetBranchInfo);
 
-        BranchConfiguration result = testCase.load(parameters, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("target", result.targetBranchName());
         assertEquals("feature/sourceBranch", result.branchName());
         assertEquals("target", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
         assertEquals("pr-key", result.pullRequestKey());
     }
 
@@ -417,19 +428,20 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("masterInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("master")).thenReturn(mockTargetBranchInfo);
         when(projectBranches.defaultBranchName()).thenReturn("master");
 
-        BranchConfiguration result = testCase.load(parameters, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("master", result.targetBranchName());
         assertEquals("feature/sourceBranch", result.branchName());
         assertEquals("master", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
@@ -442,19 +454,20 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("masterInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("master")).thenReturn(mockTargetBranchInfo);
         when(projectBranches.defaultBranchName()).thenReturn("master");
 
-        BranchConfiguration result = testCase.load(parameters, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("master", result.targetBranchName());
         assertEquals("feature/sourceBranch", result.branchName());
         assertEquals("master", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
 
@@ -484,8 +497,9 @@ public class CommunityBranchConfigurationLoaderTest {
 
     @Test
     public void testComputeBranchType() {
+        assumeNotNull(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
         BranchInfo branchInfo = mock(BranchInfo.class);
-        when(branchInfo.type()).thenReturn(BranchType.LONG);
+        when(branchInfo.type()).thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.defaultBranchName()).thenReturn("master");
@@ -493,15 +507,17 @@ public class CommunityBranchConfigurationLoaderTest {
 
         Map<String, String> parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "release/1.2");
-        parameters.put(CoreProperties.LONG_LIVED_BRANCHES_REGEX, "(master|release/.+)");
+        parameters.put(CommunityBranchPlugin.LegacyProperties.LONG_LIVED_BRANCHES_REGEX, "(master|release/.+)");
 
-        assertEquals(BranchType.LONG, new CommunityBranchConfigurationLoader()
+        assertEquals(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG,
+                     new CommunityBranchConfigurationLoader()
                 .load(parameters, projectBranches, mock(ProjectPullRequests.class)).branchType());
 
         parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "master-dummy");
 
-        assertEquals(BranchType.SHORT, new CommunityBranchConfigurationLoader()
+        assertEquals(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.SHORT,
+                     new CommunityBranchConfigurationLoader()
                 .load(parameters, projectBranches, mock(ProjectPullRequests.class)).branchType());
 
     }
@@ -620,20 +636,20 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("masterBranchInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("master")).thenReturn(mockTargetBranchInfo);
 
         when(supplier.get()).thenReturn(new HashMap<>());
 
-        BranchConfiguration result =
-                testCase.load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("master", result.targetBranchName());
         assertEquals("feature/shortLivedFeatureBranch", result.branchName());
         assertEquals("masterBranchInfo", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
 
         expectedException
                 .expectMessage(IsEqual.equalTo("Only a branch of type PULL_REQUEST can have a Pull Request key"));
@@ -650,7 +666,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("defaultBranchInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("masterxxx")).thenReturn(mockTargetBranchInfo);
@@ -658,13 +675,12 @@ public class CommunityBranchConfigurationLoaderTest {
 
         when(supplier.get()).thenReturn(new HashMap<>());
 
-        BranchConfiguration result =
-                testCase.load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("masterxxx", result.targetBranchName());
         assertEquals("feature/shortLivedBranch", result.branchName());
         assertEquals("defaultBranchInfo", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
@@ -676,7 +692,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("defaultBranchInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("masterxxx")).thenReturn(mockTargetBranchInfo);
@@ -684,13 +701,12 @@ public class CommunityBranchConfigurationLoaderTest {
 
         when(supplier.get()).thenReturn(new HashMap<>());
 
-        BranchConfiguration result =
-                testCase.load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("masterxxx", result.targetBranchName());
         assertEquals("feature/shortLivedBranch", result.branchName());
         assertEquals("defaultBranchInfo", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
@@ -701,7 +717,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("defaultBranchInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
 
@@ -717,6 +734,7 @@ public class CommunityBranchConfigurationLoaderTest {
 
     @Test
     public void testShortLivedBranchInvalidTargetPre79() {
+        assumeNotNull(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
         CommunityBranchConfigurationLoader testCase = new CommunityBranchConfigurationLoader();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "feature/shortLivedBranch");
@@ -724,7 +742,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("feature/otherShortLivedBranch");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.SHORT);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.SHORT);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.get("feature/otherShortLivedBranch")).thenReturn(mockTargetBranchInfo);
@@ -771,6 +790,7 @@ public class CommunityBranchConfigurationLoaderTest {
 
     @Test
     public void testShortLivedBranchExistingSourceAllParametersCorrectPre79() {
+        assumeNotNull(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
         CommunityBranchConfigurationLoader testCase = new CommunityBranchConfigurationLoader();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "feature/shortLivedBranch");
@@ -778,11 +798,13 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("longLivedBranch");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         BranchInfo mockSourceBranchInfo = mock(BranchInfo.class);
         when(mockSourceBranchInfo.name()).thenReturn("shortLivedBranch");
-        when(mockSourceBranchInfo.type()).thenReturn(BranchType.SHORT);
+        when(mockSourceBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.SHORT);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
@@ -791,29 +813,31 @@ public class CommunityBranchConfigurationLoaderTest {
 
         when(supplier.get()).thenReturn(new HashMap<>());
 
-        BranchConfiguration result =
-                testCase.load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("longLivedBranch", result.targetBranchName());
         assertEquals("feature/shortLivedBranch", result.branchName());
         assertEquals("longLivedBranch", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
     public void testExistingShortLivedBranchOnlySourceParametersRetargetMasterPre79() {
+        assumeNotNull(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
         CommunityBranchConfigurationLoader testCase = new CommunityBranchConfigurationLoader();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "feature/shortLivedBranch");
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("longLivedBranch");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         BranchInfo mockSourceBranchInfo = mock(BranchInfo.class);
         when(mockSourceBranchInfo.name()).thenReturn("shortLivedBranch");
         when(mockSourceBranchInfo.branchTargetName()).thenReturn("otherLongLivedBranch");
-        when(mockSourceBranchInfo.type()).thenReturn(BranchType.SHORT);
+        when(mockSourceBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.SHORT);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
@@ -823,13 +847,12 @@ public class CommunityBranchConfigurationLoaderTest {
 
         when(supplier.get()).thenReturn(new HashMap<>());
 
-        BranchConfiguration result =
-                testCase.load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("master", result.targetBranchName());
         assertEquals("feature/shortLivedBranch", result.branchName());
         assertEquals("master", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
@@ -840,7 +863,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("longLivedBranch");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
@@ -848,13 +872,12 @@ public class CommunityBranchConfigurationLoaderTest {
 
         when(supplier.get()).thenReturn(new HashMap<>());
 
-        BranchConfiguration result =
-                testCase.load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
 
         assertNull(result.targetBranchName());
         assertEquals("longLivedBranch", result.branchName());
         assertEquals("longLivedBranch", result.longLivingSonarReferenceBranch());
-        assertFalse(result.isShortOrPullRequest());
     }
 
     @Test
@@ -867,7 +890,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("targetInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
@@ -875,13 +899,12 @@ public class CommunityBranchConfigurationLoaderTest {
 
         when(supplier.get()).thenReturn(new HashMap<>());
 
-        BranchConfiguration result =
-                testCase.load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("target", result.targetBranchName());
         assertEquals("feature/sourceBranch", result.branchName());
         assertEquals("target", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
         assertEquals("pr-key", result.pullRequestKey());
     }
 
@@ -895,7 +918,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("masterInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
@@ -904,13 +928,12 @@ public class CommunityBranchConfigurationLoaderTest {
 
         when(supplier.get()).thenReturn(new HashMap<>());
 
-        BranchConfiguration result =
-                testCase.load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("master", result.targetBranchName());
         assertEquals("feature/sourceBranch", result.branchName());
         assertEquals("master", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
     @Test
@@ -923,7 +946,8 @@ public class CommunityBranchConfigurationLoaderTest {
 
         BranchInfo mockTargetBranchInfo = mock(BranchInfo.class);
         when(mockTargetBranchInfo.name()).thenReturn("masterInfo");
-        when(mockTargetBranchInfo.type()).thenReturn(BranchType.LONG);
+        when(mockTargetBranchInfo.type())
+                .thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
@@ -932,13 +956,12 @@ public class CommunityBranchConfigurationLoaderTest {
 
         when(supplier.get()).thenReturn(new HashMap<>());
 
-        BranchConfiguration result =
-                testCase.load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
+        CommunityBranchConfiguration result = (CommunityBranchConfiguration) testCase
+                .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class));
 
         assertEquals("master", result.targetBranchName());
         assertEquals("feature/sourceBranch", result.branchName());
         assertEquals("master", result.longLivingSonarReferenceBranch());
-        assertTrue(result.isShortOrPullRequest());
     }
 
 
@@ -970,12 +993,13 @@ public class CommunityBranchConfigurationLoaderTest {
 
     @Test
     public void testComputeBranchTypePre79() {
+        assumeNotNull(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
         Map<String, String> settings = new HashMap<>();
-        settings.put(CoreProperties.LONG_LIVED_BRANCHES_REGEX, "(master|release/.+)");
+        settings.put(CommunityBranchPlugin.LegacyProperties.LONG_LIVED_BRANCHES_REGEX, "(master|release/.+)");
         when(supplier.get()).thenReturn(settings);
 
         BranchInfo branchInfo = mock(BranchInfo.class);
-        when(branchInfo.type()).thenReturn(BranchType.LONG);
+        when(branchInfo.type()).thenReturn(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG);
 
         ProjectBranches projectBranches = mock(ProjectBranches.class);
         when(projectBranches.defaultBranchName()).thenReturn("master");
@@ -984,13 +1008,15 @@ public class CommunityBranchConfigurationLoaderTest {
         Map<String, String> parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "release/1.2");
 
-        assertEquals(BranchType.LONG, new CommunityBranchConfigurationLoader()
+        assertEquals(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG,
+                     new CommunityBranchConfigurationLoader()
                 .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class)).branchType());
 
         parameters = new HashMap<>();
         parameters.put("sonar.branch.name", "master-dummy");
 
-        assertEquals(BranchType.SHORT, new CommunityBranchConfigurationLoader()
+        assertEquals(BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.SHORT,
+                     new CommunityBranchConfigurationLoader()
                 .load(parameters, supplier, projectBranches, mock(ProjectPullRequests.class)).branchType());
 
     }
