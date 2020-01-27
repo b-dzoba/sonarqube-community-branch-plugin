@@ -51,7 +51,7 @@ public class PullRequestPostAnalysisTaskTest {
     public void testFinishedNonPullRequest() {
         PostProjectAnalysisTask.ProjectAnalysis projectAnalysis = mock(PostProjectAnalysisTask.ProjectAnalysis.class);
         Branch branch = mock(Branch.class);
-        doReturn(Branch.Type.LONG).when(branch).getType();
+        doReturn(Branch.Type.BRANCH).when(branch).getType();
         doReturn(Optional.of(branch)).when(projectAnalysis).getBranch();
 
         Server server = mock(Server.class);

@@ -28,17 +28,22 @@ import java.util.function.Supplier;
 
 public interface BranchConfigurationLoaderCompatibility extends SonarqubeCompatibility {
 
-    interface BranchConfigurationLoaderCompatibilityMajor7 extends SonarqubeCompatibility.Major7, BranchConfigurationLoaderCompatibility {
+    interface BranchConfigurationLoaderCompatibilityMajor7
+            extends SonarqubeCompatibility.Major7, BranchConfigurationLoaderCompatibility {
 
-        interface BranchConfigurationLoaderCompatibilityMinor8 extends BranchConfigurationLoaderCompatibilityMajor7, SonarqubeCompatibility.Major7.Minor8 {
+        interface BranchConfigurationLoaderCompatibilityMinor8
+                extends BranchConfigurationLoaderCompatibilityMajor7, SonarqubeCompatibility.Major7.Minor8 {
 
             BranchConfiguration load(Map<String, String> localSettings, Supplier<Map<String, String>> supplier,
                                      ProjectBranches projectBranches, ProjectPullRequests projectPullRequests);
 
         }
 
-        interface BranchConfigurationLoaderCompatibilityMinor9 extends BranchParamsValidatorCompatibility.BranchParamsValidatorCompatibilityMajor7, SonarqubeCompatibility.Major7.Minor9 {
+        interface BranchConfigurationLoaderCompatibilityMinor9
+                extends BranchParamsValidatorCompatibility.BranchParamsValidatorCompatibilityMajor7,
+                        SonarqubeCompatibility.Major7.Minor9 {
 
+            //Forward compatibility for SQ 7.9
             BranchConfiguration load(Map<String, String> localSettings, ProjectBranches projectBranches,
                                      ProjectPullRequests pullRequests);
         }

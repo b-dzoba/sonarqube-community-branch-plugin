@@ -18,6 +18,7 @@
  */
 package com.github.mc1arke.sonarqube.plugin.server;
 
+import com.github.mc1arke.sonarqube.plugin.ce.BranchLoaderDelegateCompatibility;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -72,7 +73,12 @@ public class CommunityBranchSupportDelegate implements BranchSupportDelegate {
 
         try {
             BranchType branchType = BranchType.valueOf(branchTypeParam);
-            if (branchType == BranchType.LONG || branchType == BranchType.SHORT) {
+            if (branchType ==
+                BranchLoaderDelegateCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.LONG ||
+                branchType ==
+                BranchLoaderDelegateCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor0.SHORT ||
+                branchType ==
+                BranchLoaderDelegateCompatibility.BranchTypeCompatibilityMajor8.BranchTypeCompatibilityMinor1.BRANCH) {
                 return new CommunityComponentKey(projectKey, ComponentDto.generateBranchKey(projectKey, branch),
                                                  new BranchSupport.Branch(branch, branchType), null, null);
             }

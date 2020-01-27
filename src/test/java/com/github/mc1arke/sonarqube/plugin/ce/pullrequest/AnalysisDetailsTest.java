@@ -305,7 +305,7 @@ public class AnalysisDetailsTest {
         verify(formatter).format(documentArgumentCaptor.capture(), eq(formatterFactory));
 
         Document expectedDocument = new Document(new Paragraph(new Image("Failed",
-                                                                         "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/QualityGateBadge/failed.svg?sanitize=true")),
+                                                                         "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/QualityGateBadge/failed.svg?sanitize=true")),
                                                  new List(List.Style.BULLET,
                                                           new ListItem(new Text("12 Lines to Cover (is less than 20)")),
                                                           new ListItem(new Text("2 Code Smells (is greater than 0)")),
@@ -321,20 +321,20 @@ public class AnalysisDetailsTest {
                                                  new Heading(2, new Text("5 Issues")), new List(List.Style.BULLET,
                                                                                                 new ListItem(
                                                                                                         new Image("Bug",
-                                                                                                                  "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/bug.svg?sanitize=true"),
+                                                                                                                  "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/bug.svg?sanitize=true"),
                                                                                                         new Text(" "),
                                                                                                         new Text(
                                                                                                                 "2 Bugs")),
                                                                                                 new ListItem(new Image(
                                                                                                         "Vulnerability",
-                                                                                                        "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
+                                                                                                        "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
                                                                                                              new Text(
                                                                                                                      " "),
                                                                                                              new Text(
                                                                                                                      "2 Vulnerabilities")),
                                                                                                 new ListItem(new Image(
                                                                                                         "Code Smell",
-                                                                                                        "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
+                                                                                                        "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
                                                                                                              new Text(
                                                                                                                      " "),
                                                                                                              new Text(
@@ -342,11 +342,11 @@ public class AnalysisDetailsTest {
                                                  new Heading(2, new Text("Coverage and Duplications")),
                                                  new List(List.Style.BULLET, new ListItem(
                                                          new Image("No coverage information",
-                                                                   "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/CoverageChart/NoCoverageInfo.svg?sanitize=true"),
+                                                                   "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/CoverageChart/NoCoverageInfo.svg?sanitize=true"),
                                                          new Text(" "), new Text(
                                                          "No coverage information (12.30% Estimated after merge)")),
                                                           new ListItem(new Image("No duplication information",
-                                                                                 "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/Duplications/NoDuplicationInfo.svg?sanitize=true"),
+                                                                                 "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/Duplications/NoDuplicationInfo.svg?sanitize=true"),
                                                                        new Text(" "), new Text(
                                                                   "No duplication information (12.30% Estimated after merge)"))),
                                                  new Link("http://localhost:9000/dashboard?id=Project+Key&pullRequest=5", new Text("View in SonarQube")));
@@ -414,25 +414,25 @@ public class AnalysisDetailsTest {
         verify(formatter).format(documentArgumentCaptor.capture(), eq(formatterFactory));
 
         Document expectedDocument = new Document(new Paragraph(new Image("Passed",
-                                                                         "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/QualityGateBadge/passed.svg?sanitize=true")),
+                                                                         "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/QualityGateBadge/passed.svg?sanitize=true")),
                                                  new Text(""), new Heading(1, new Text("Analysis Details")),
                                                  new Heading(2, new Text("0 Issues")), new List(List.Style.BULLET,
                                                                                                 new ListItem(
                                                                                                         new Image("Bug",
-                                                                                                                  "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/bug.svg?sanitize=true"),
+                                                                                                                  "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/bug.svg?sanitize=true"),
                                                                                                         new Text(" "),
                                                                                                         new Text(
                                                                                                                 "0 Bugs")),
                                                                                                 new ListItem(new Image(
                                                                                                         "Vulnerability",
-                                                                                                        "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
+                                                                                                        "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
                                                                                                              new Text(
                                                                                                                      " "),
                                                                                                              new Text(
                                                                                                                      "0 Vulnerabilities")),
                                                                                                 new ListItem(new Image(
                                                                                                         "Code Smell",
-                                                                                                        "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
+                                                                                                        "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
                                                                                                              new Text(
                                                                                                                      " "),
                                                                                                              new Text(
@@ -440,11 +440,11 @@ public class AnalysisDetailsTest {
                                                  new Heading(2, new Text("Coverage and Duplications")),
                                                  new List(List.Style.BULLET, new ListItem(
                                                          new Image("25 percent coverage",
-                                                                   "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/CoverageChart/25.svg?sanitize=true"),
+                                                                   "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/CoverageChart/25.svg?sanitize=true"),
                                                          new Text(" "),
                                                          new Text("33.00% Coverage (21.78% Estimated after merge)")),
                                                           new ListItem(new Image("20 percent duplication",
-                                                                                 "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/Duplications/20.svg?sanitize=true"),
+                                                                                 "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/Duplications/20.svg?sanitize=true"),
                                                                        new Text(" "), new Text(
                                                                   "18.00% Duplicated Code (21.78% Estimated after merge)"))),
                                                  new Link("http://localhost:9000/dashboard?id=Project+Key&pullRequest=5", new Text("View in SonarQube")));
@@ -616,25 +616,25 @@ public class AnalysisDetailsTest {
         verify(formatter).format(documentArgumentCaptor.capture(), eq(formatterFactory));
 
         Document expectedDocument = new Document(new Paragraph(new Image("Passed",
-                                                                         "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/QualityGateBadge/passed.svg?sanitize=true")),
+                                                                         "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/QualityGateBadge/passed.svg?sanitize=true")),
                                                  new Text(""), new Heading(1, new Text("Analysis Details")),
                                                  new Heading(2, new Text("0 Issues")), new List(List.Style.BULLET,
                                                                                                 new ListItem(
                                                                                                         new Image("Bug",
-                                                                                                                  "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/bug.svg?sanitize=true"),
+                                                                                                                  "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/bug.svg?sanitize=true"),
                                                                                                         new Text(" "),
                                                                                                         new Text(
                                                                                                                 "0 Bugs")),
                                                                                                 new ListItem(new Image(
                                                                                                         "Vulnerability",
-                                                                                                        "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
+                                                                                                        "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
                                                                                                              new Text(
                                                                                                                      " "),
                                                                                                              new Text(
                                                                                                                      "0 Vulnerabilities")),
                                                                                                 new ListItem(new Image(
                                                                                                         "Code Smell",
-                                                                                                        "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
+                                                                                                        "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/common/vulnerability.svg?sanitize=true"),
                                                                                                              new Text(
                                                                                                                      " "),
                                                                                                              new Text(
@@ -642,11 +642,11 @@ public class AnalysisDetailsTest {
                                                  new Heading(2, new Text("Coverage and Duplications")),
                                                  new List(List.Style.BULLET, new ListItem(
                                                          new Image("0 percent coverage",
-                                                                   "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/CoverageChart/0.svg?sanitize=true"),
+                                                                   "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/CoverageChart/0.svg?sanitize=true"),
                                                          new Text(" "),
                                                          new Text("0.00% Coverage (21.78% Estimated after merge)")),
                                                           new ListItem(new Image("20plus percent duplication",
-                                                                                 "https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/Duplications/20plus.svg?sanitize=true"),
+                                                                                 "https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images/checks/Duplications/20plus.svg?sanitize=true"),
                                                                        new Text(" "), new Text(
                                                                   "30.00% Duplicated Code (21.78% Estimated after merge)"))),
                                                  new Link("http://localhost:9000/dashboard?id=Project+Key&pullRequest=5", new Text("View in SonarQube")));

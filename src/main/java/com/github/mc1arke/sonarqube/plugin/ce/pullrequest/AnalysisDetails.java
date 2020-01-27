@@ -138,7 +138,7 @@ public class AnalysisDetails {
         List<QualityGate.Condition> failedConditions = findFailedConditions();
 
         String baseImageUrl = configuration.get(IMAGE_URL_BASE)
-                .orElse("https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images");
+                .orElse("https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images");
 
         Document document = new Document(new Paragraph((QualityGate.Status.OK == getQualityGateStatus() ?
                                                         new Image("Passed", baseImageUrl +
@@ -194,7 +194,7 @@ public class AnalysisDetails {
         final DefaultIssue issue = componentIssue.getIssue();
 
         String baseImageUrl = configuration.get(IMAGE_URL_BASE)
-                .orElse("https://raw.githubusercontent.com/mc1arke/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images");
+                .orElse("https://raw.githubusercontent.com/b-dzoba/sonarqube-community-branch-plugin/master/src/main/resources/pr-decoration-images");
 
         Long effort = issue.effortInMinutes();
         Node effortNode = (null == effort ? new Text("") : new Paragraph(new Text(String.format("**Duration (min):** %s", effort))));

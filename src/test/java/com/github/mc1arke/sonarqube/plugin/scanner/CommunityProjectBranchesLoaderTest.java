@@ -25,7 +25,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.scanner.scan.branch.BranchInfo;
-import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsResponse;
@@ -79,7 +78,8 @@ public class CommunityProjectBranchesLoaderTest {
 
         List<BranchInfo> infos = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            infos.add(new BranchInfo("key" + i, BranchType.LONG, i == 1, "target" + i));
+            infos.add(new BranchInfo("key" + i, BranchConfigurationCompatibility.BranchTypeMajor8.BranchTypeMinor0.LONG,
+                                     i == 1, "target" + i));
         }
 
         StringReader stringReader = new StringReader(

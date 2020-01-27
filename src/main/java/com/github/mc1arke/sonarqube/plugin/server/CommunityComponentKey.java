@@ -25,7 +25,9 @@ import java.util.Optional;
 /**
  * @author Michael Clarke
  */
-/*package*/ class CommunityComponentKey extends BranchSupport.ComponentKey implements ComponentKeyCompatibility.ComponentKeyCompatibilityMajor7.ComponentKeyCompatibilityMinor9 {
+/*package*/ class CommunityComponentKey extends BranchSupport.ComponentKey
+        implements ComponentKeyCompatibility.ComponentKeyCompatibilityMajor7.ComponentKeyCompatibilityMinor9 {
+
 
     private final String key;
     private final String dbKey;

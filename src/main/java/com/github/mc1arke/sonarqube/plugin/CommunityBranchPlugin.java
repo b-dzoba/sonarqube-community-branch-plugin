@@ -21,6 +21,7 @@ package com.github.mc1arke.sonarqube.plugin;
 import com.github.mc1arke.sonarqube.plugin.ce.CommunityBranchEditionProvider;
 import com.github.mc1arke.sonarqube.plugin.ce.CommunityReportAnalysisComponentProvider;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.PullRequestBuildStatusDecorator;
+import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.cloud.BitbucketCloudPullRequestDecorator;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server.BitbucketServerPullRequestDecorator;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.gitlab.GitlabServerPullRequestDecorator;
 import com.github.mc1arke.sonarqube.plugin.scanner.CommunityBranchConfigurationLoader;
@@ -35,18 +36,22 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.config.PurgeConstants;
+import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.extension.CoreExtension;
 
 /**
  * @author Michael Clarke
  */
 public class CommunityBranchPlugin implements Plugin, CoreExtension {
+    private static final Logger LOGGER = Loggers.get(CommunityBranchPlugin.class);
 
     private static final String PULL_REQUEST_CATEGORY_LABEL = "Pull Request";
     private static final String GITHUB_INTEGRATION_SUBCATEGORY_LABEL = "Integration With Github";
     private static final String GENERAL = "General";
     private static final String BITBUCKET_INTEGRATION_SUBCATEGORY_LABEL = "Integration With Bitbucket";
+    private static final String BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL = "Integration With Bitbucket Cloud";
     private static final String GITLAB_INTEGRATION_SUBCATEGORY_LABEL = "Integration With Gitlab";
 
     @Override
@@ -56,6 +61,7 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
 
     @Override
     public void load(CoreExtension.Context context) {
+        LOGGER.info("Loading extensions for side " + context.getRuntime().getSonarQubeSide());
         if (SonarQubeSide.COMPUTE_ENGINE == context.getRuntime().getSonarQubeSide()) {
             context.addExtensions(CommunityReportAnalysisComponentProvider.class, CommunityBranchEditionProvider.class);
         } else if (SonarQubeSide.SERVER == context.getRuntime().getSonarQubeSide()) {
@@ -64,23 +70,23 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                     /* org.sonar.db.purge.PurgeConfiguration uses the value for the this property if it's configured, so it only
                     needs to be specified here, but doesn't need any additional classes to perform the relevant purge/cleanup
                      */
-                                  PropertyDefinition
-                                          .builder(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES)
-                                          .name("Number of days before purging inactive short living branches")
-                                          .description(
-                                                  "Short living branches are permanently deleted when there are no analysis for the configured number of days.")
-                                          .category(CoreProperties.CATEGORY_GENERAL)
-                                          .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER).defaultValue("30")
-                                          .type(PropertyType.INTEGER).build(),
+                        PropertyDefinition.builder(FutureProperties.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS)
+                            .deprecatedKey("sonar.dbcleaner.daysBeforeDeletingInactiveBranches")
+                            .name("Number of days before purging inactive short living branches").description(
+                            "Short living branches are permanently deleted when there are no analysis for the configured number of days.")
+                            .category(context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
+                                FutureProperties.CATEGORY_HOUSEKEEPING : CoreProperties.CATEGORY_GENERAL).subCategory(
+                            context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
+                                FutureProperties.SUBCATEGORY_GENERAL : LegacyProperties.SUBCATEGORY_DATABASE_CLEANER)
+                            .defaultValue("30")
+                            .type(PropertyType.INTEGER).build(),
 
-                                  //the name and description shown on the UI are automatically loaded from core.properties so don't need to be specified here
-                                  PropertyDefinition.builder(CoreProperties.LONG_LIVED_BRANCHES_REGEX)
-                                          .onQualifiers(Qualifiers.PROJECT).category(CoreProperties.CATEGORY_GENERAL)
-                                          .subCategory(CoreProperties.SUBCATEGORY_BRANCHES)
-                                          .defaultValue(CommunityBranchConfigurationLoader.DEFAULT_BRANCH_REGEX).build()
-
-
-                                 );
+                        //the name and description shown on the UI are automatically loaded from core.properties so don't need to be specified here
+                        PropertyDefinition.builder(LegacyProperties.LONG_LIVED_BRANCHES_REGEX).onQualifiers(Qualifiers.PROJECT)
+                            .category(CoreProperties.CATEGORY_GENERAL).subCategory(
+                            context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(8, 0)) ?
+                                FutureProperties.SUBCATEGORY_BRANCHES_AND_PULL_REQUESTS : LegacyProperties.SUBCATEGORY_BRANCHES)
+                            .defaultValue(CommunityBranchConfigurationLoader.DEFAULT_BRANCH_REGEX).build());
         }
 
         if (SonarQubeSide.COMPUTE_ENGINE == context.getRuntime().getSonarQubeSide() ||
@@ -88,7 +94,7 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
             context.addExtensions(
                     PropertyDefinition.builder("sonar.pullrequest.provider").category(PULL_REQUEST_CATEGORY_LABEL)
                             .subCategory("General").onQualifiers(Qualifiers.PROJECT).name("Provider")
-                            .type(PropertyType.SINGLE_SELECT_LIST).options("Github", "BitbucketServer", "GitlabServer").build(),
+                            .type(PropertyType.SINGLE_SELECT_LIST).options("Github", "BitbucketServer", "BitbucketCloud", "GitlabServer").build(),
 
                     PropertyDefinition.builder("sonar.alm.github.app.privateKey.secured")
                             .category(PULL_REQUEST_CATEGORY_LABEL).subCategory(GITHUB_INTEGRATION_SUBCATEGORY_LABEL)
@@ -138,8 +144,11 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                             .description("User slug for the comment user. Needed only for comment deletion.").type(PropertyType.STRING).build(),
 
                     PropertyDefinition.builder(BitbucketServerPullRequestDecorator.PULL_REQUEST_BITBUCKET_REPOSITORY_SLUG)
-                            .category(PULL_REQUEST_CATEGORY_LABEL).subCategory(BITBUCKET_INTEGRATION_SUBCATEGORY_LABEL).onlyOnQualifiers(Qualifiers.PROJECT).name("Repository Slug").description(
-                            "Repository Slug see for example https://docs.atlassian.com/bitbucket-server/rest/latest/bitbucket-rest.html")
+                            .category(PULL_REQUEST_CATEGORY_LABEL)
+                            .subCategory(BITBUCKET_INTEGRATION_SUBCATEGORY_LABEL)
+                            .onlyOnQualifiers(Qualifiers.PROJECT)
+                            .name("Repository Slug")
+                            .description("Repository Slug see for example https://docs.atlassian.com/bitbucket-server/rest/latest/bitbucket-rest.html")
                             .type(PropertyType.STRING).build(),
 
                     PropertyDefinition.builder(BitbucketServerPullRequestDecorator.PULL_REQUEST_BITBUCKET_USER_SLUG).category(PULL_REQUEST_CATEGORY_LABEL).subCategory(BITBUCKET_INTEGRATION_SUBCATEGORY_LABEL)
@@ -176,6 +185,33 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
                             .name("Repository Slug for the Gitlab (Server or Cloud) instance")
                             .description("The repository slug can be either in the form of user/repo or it can be the Project ID")
                             .type(PropertyType.STRING)
+                            .build(),
+
+                    PropertyDefinition.builder(BitbucketCloudPullRequestDecorator.PULL_REQUEST_BITBUCKET_CLOUD_WORKSPACE)
+                            .category(PULL_REQUEST_CATEGORY_LABEL)
+                            .subCategory(BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL)
+                            .onQualifiers(Qualifiers.PROJECT)
+                            .name("Workspace")
+                            .description("Workspace")
+                            .type(PropertyType.STRING)
+                            .build(),
+
+                    PropertyDefinition.builder(BitbucketCloudPullRequestDecorator.PULL_REQUEST_BITBUCKET_CLOUD_USERNAME)
+                            .category(PULL_REQUEST_CATEGORY_LABEL)
+                            .subCategory(BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL)
+                            .onQualifiers(Qualifiers.PROJECT)
+                            .name("Username")
+                            .description("Username")
+                            .type(PropertyType.STRING)
+                            .build(),
+
+                    PropertyDefinition.builder(BitbucketCloudPullRequestDecorator.PULL_REQUEST_BITBUCKET_CLOUD_PASSWORD)
+                            .category(PULL_REQUEST_CATEGORY_LABEL)
+                            .subCategory(BITBUCKET_CLOUD_INTEGRATION_SUBCATEGORY_LABEL)
+                            .onQualifiers(Qualifiers.PROJECT)
+                            .name("App password")
+                            .description("App password")
+                            .type(PropertyType.PASSWORD)
                             .build()
             );
         }
@@ -186,6 +222,35 @@ public class CommunityBranchPlugin implements Plugin, CoreExtension {
         if (SonarQubeSide.SCANNER == context.getRuntime().getSonarQubeSide()) {
             context.addExtensions(CommunityProjectBranchesLoader.class, CommunityProjectPullRequestsLoader.class,
                                   CommunityBranchConfigurationLoader.class, CommunityBranchParamsValidator.class);
+        }
+    }
+
+    public static class LegacyProperties implements SonarqubeCompatibility.Major8.Minor0 {
+
+        public static final String LONG_LIVED_BRANCHES_REGEX = "sonar.branch.longLivedBranches.regex";
+
+        private static final String SUBCATEGORY_BRANCHES = "Branches";
+
+        private static final String SUBCATEGORY_DATABASE_CLEANER = "databaseCleaner";
+
+        private LegacyProperties() {
+            super();
+        }
+
+    }
+
+    private static class FutureProperties implements SonarqubeCompatibility.Major8.Minor1 {
+        private static final String SUBCATEGORY_BRANCHES_AND_PULL_REQUESTS = "branchesAndPullRequests";
+
+        private static final String SUBCATEGORY_GENERAL = "general";
+
+        private static final String CATEGORY_HOUSEKEEPING = "housekeeping";
+
+        private static final String DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS =
+                "sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs";
+
+        private FutureProperties() {
+            super();
         }
     }
 }
