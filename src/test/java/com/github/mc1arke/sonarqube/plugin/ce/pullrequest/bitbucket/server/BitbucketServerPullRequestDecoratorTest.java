@@ -19,8 +19,7 @@
 package com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.SummaryComment;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.response.diff.DiffPage;
+import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server.diff.DiffPage;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.entity.ContentType;

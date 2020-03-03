@@ -30,4 +30,8 @@ public interface PullRequestBuildStatusDecorator {
                                    ProjectAlmSettingDto projectAlmSettingDto);
 
     ALM alm();
+
+    default boolean isSupported(AlmSettingDto settings) {
+        return true;
+    }
 }

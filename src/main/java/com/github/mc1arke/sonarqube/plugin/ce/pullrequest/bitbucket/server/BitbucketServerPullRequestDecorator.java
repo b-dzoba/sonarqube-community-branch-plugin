@@ -23,14 +23,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.AnalysisDetails;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.PostAnalysisIssueVisitor;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.PullRequestBuildStatusDecorator;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.Anchor;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.FileComment;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.SummaryComment;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.response.diff.Diff;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.response.diff.DiffLine;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.response.diff.DiffPage;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.response.diff.Hunk;
-import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.response.diff.Segment;
+import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server.diff.Diff;
+import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server.diff.DiffLine;
+import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server.diff.DiffPage;
+import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server.diff.Hunk;
+import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.bitbucket.server.diff.Segment;
 import com.github.mc1arke.sonarqube.plugin.ce.pullrequest.markup.MarkdownFormatterFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -218,5 +215,10 @@ public class BitbucketServerPullRequestDecorator implements PullRequestBuildStat
     @Override
     public ALM alm() {
         return ALM.BITBUCKET;
+    }
+
+    @Override
+    public boolean isSupported(AlmSettingDto settings) {
+        return settings.getUrl() != null && !settings.getUrl().startsWith("https://api.bitbucket.org/2.0/");
     }
 }

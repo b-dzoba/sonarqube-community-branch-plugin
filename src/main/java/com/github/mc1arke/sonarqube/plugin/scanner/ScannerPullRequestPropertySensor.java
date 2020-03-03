@@ -28,6 +28,8 @@ import java.util.Optional;
 
 public class ScannerPullRequestPropertySensor implements Sensor {
 
+    public static final String PULLREQUEST_DECORATION_CONFIG_PROPERTY = "sonar.pullrequest.decoration.config";
+
     private final System2 system2;
 
     public ScannerPullRequestPropertySensor(System2 system2) {
@@ -61,6 +63,10 @@ public class ScannerPullRequestPropertySensor implements Sensor {
                 v -> sensorContext.addContextProperty(GitlabServerPullRequestDecorator.PULLREQUEST_GITLAB_PROJECT_URL, v));
         Optional.ofNullable(system2.property(GitlabServerPullRequestDecorator.PULLREQUEST_GITLAB_PIPELINE_ID)).ifPresent(
                 v -> sensorContext.addContextProperty(GitlabServerPullRequestDecorator.PULLREQUEST_GITLAB_PIPELINE_ID, v));
+
+
+        sensorContext.config().get(PULLREQUEST_DECORATION_CONFIG_PROPERTY).ifPresent(
+            v -> sensorContext.addContextProperty(PULLREQUEST_DECORATION_CONFIG_PROPERTY, v));
     }
 
 }

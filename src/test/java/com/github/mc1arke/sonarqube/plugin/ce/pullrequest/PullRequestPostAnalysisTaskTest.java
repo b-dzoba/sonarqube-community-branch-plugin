@@ -272,11 +272,13 @@ public class PullRequestPostAnalysisTaskTest {
 
         PullRequestBuildStatusDecorator decorator1 = mock(PullRequestBuildStatusDecorator.class);
         doReturn("decorator-name-1").when(decorator1).name();
+        doReturn(true).when(decorator1).isSupported(any());
         pullRequestBuildStatusDecorators.add(decorator1);
 
         PullRequestBuildStatusDecorator decorator2 = mock(PullRequestBuildStatusDecorator.class);
         doReturn("decorator-name-2").when(decorator2).name();
         doReturn(ALM.GITHUB).when(decorator2).alm();
+        doReturn(true).when(decorator2).isSupported(any());
         pullRequestBuildStatusDecorators.add(decorator2);
 
         Configuration configuration = mock(Configuration.class);
@@ -344,11 +346,13 @@ public class PullRequestPostAnalysisTaskTest {
 
         PullRequestBuildStatusDecorator decorator1 = mock(PullRequestBuildStatusDecorator.class);
         doReturn("decorator-name-1").when(decorator1).name();
+        doReturn(true).when(decorator1).isSupported(any());
         pullRequestBuildStatusDecorators.add(decorator1);
 
         PullRequestBuildStatusDecorator decorator2 = mock(PullRequestBuildStatusDecorator.class);
         doReturn("decorator-name-2").when(decorator2).name();
         doReturn(ALM.GITHUB).when(decorator2).alm();
+        doReturn(true).when(decorator2).isSupported(any());
         pullRequestBuildStatusDecorators.add(decorator2);
 
         Configuration configuration = mock(Configuration.class);
@@ -437,11 +441,13 @@ public class PullRequestPostAnalysisTaskTest {
 
         PullRequestBuildStatusDecorator decorator1 = mock(PullRequestBuildStatusDecorator.class);
         doReturn("decorator-name-1").when(decorator1).name();
+        doReturn(true).when(decorator1).isSupported(any());
         pullRequestBuildStatusDecorators.add(decorator1);
 
         PullRequestBuildStatusDecorator decorator2 = mock(PullRequestBuildStatusDecorator.class);
         doReturn("decorator-name-2").when(decorator2).name();
         doReturn(ALM.GITHUB).when(decorator2).alm();
+        doReturn(true).when(decorator2).isSupported(any());
         pullRequestBuildStatusDecorators.add(decorator2);
 
         Configuration configuration = mock(Configuration.class);
@@ -493,11 +499,13 @@ public class PullRequestPostAnalysisTaskTest {
         PullRequestBuildStatusDecorator decorator1 = mock(PullRequestBuildStatusDecorator.class);
         doReturn("decorator-name-1").when(decorator1).name();
         doReturn(ALM.BITBUCKET).when(decorator1).alm();
+        doReturn(true).when(decorator1).isSupported(any());
         pullRequestBuildStatusDecorators.add(decorator1);
 
         PullRequestBuildStatusDecorator decorator2 = mock(PullRequestBuildStatusDecorator.class);
         doReturn("decorator-name-2").when(decorator2).name();
         doReturn(ALM.GITHUB).when(decorator2).alm();
+        doReturn(true).when(decorator2).isSupported(any());
         pullRequestBuildStatusDecorators.add(decorator2);
 
         Configuration configuration = mock(Configuration.class);

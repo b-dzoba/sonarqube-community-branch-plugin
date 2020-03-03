@@ -18,6 +18,8 @@
  */
 package com.github.mc1arke.sonarqube.plugin.ce.pullrequest;
 
+import static com.github.mc1arke.sonarqube.plugin.scanner.ScannerPullRequestPropertySensor.PULLREQUEST_DECORATION_CONFIG_PROPERTY;
+
 import org.sonar.api.ce.posttask.Analysis;
 import org.sonar.api.ce.posttask.Branch;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
@@ -94,29 +96,28 @@ public class PullRequestPostAnalysisTask implements PostProjectAnalysisTask {
         Configuration configuration = configurationRepository.getConfiguration();
 
         ProjectAlmSettingDto projectAlmSettingDto;
-        Optional<AlmSettingDto> optionalAlmSettingDto;
+        AlmSettingDto almSettingDto;
         try (DbSession dbSession = dbClient.openSession(false)) {
-
-            Optional<ProjectAlmSettingDto> optionalProjectAlmSettingDto =
-                    dbClient.projectAlmSettingDao().selectByProject(dbSession, projectAnalysis.getProject().getUuid());
-
-            if (!optionalProjectAlmSettingDto.isPresent()) {
-                LOGGER.debug("No ALM has been set on the current project");
-                return;
+            String decorationConfig = projectAnalysis.getScannerContext().getProperties().get(PULLREQUEST_DECORATION_CONFIG_PROPERTY);
+            LOGGER.debug("Using pull request decoration config " + decorationConfig);
+            if (decorationConfig != null) {
+                projectAlmSettingDto = dbClient.projectAlmSettingDao().selectByProject(dbSession, projectAnalysis.getProject().getUuid()).orElse(new ProjectAlmSettingDto());
+                almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, decorationConfig).orElse(null);
+            } else {
+                projectAlmSettingDto = dbClient.projectAlmSettingDao().selectByProject(dbSession, projectAnalysis.getProject().getUuid()).orElse(null);
+                if (projectAlmSettingDto == null) {
+                    return;
+                }
+                String almSettingUuid = projectAlmSettingDto.getAlmSettingUuid();
+                almSettingDto = dbClient.almSettingDao().selectByUuid(dbSession, almSettingUuid).orElse(null);
             }
-
-            projectAlmSettingDto = optionalProjectAlmSettingDto.get();
-            String almSettingUuid = projectAlmSettingDto.getAlmSettingUuid();
-            optionalAlmSettingDto = dbClient.almSettingDao().selectByUuid(dbSession, almSettingUuid);
-
         }
 
-        if (!optionalAlmSettingDto.isPresent()) {
+        if (almSettingDto == null) {
             LOGGER.warn("The ALM configured for this project could not be found");
             return;
         }
 
-        AlmSettingDto almSettingDto = optionalAlmSettingDto.get();
         Optional<PullRequestBuildStatusDecorator> optionalPullRequestDecorator =
                 findCurrentPullRequestStatusDecorator(almSettingDto, pullRequestDecorators);
 
@@ -157,7 +158,7 @@ public class PullRequestPostAnalysisTask implements PostProjectAnalysisTask {
                                     projectAnalysis.getScannerContext());
 
         PullRequestBuildStatusDecorator pullRequestDecorator = optionalPullRequestDecorator.get();
-        LOGGER.info("using pull request decorator" + pullRequestDecorator.name());
+        LOGGER.info("using pull request decorator " + pullRequestDecorator.name());
         pullRequestDecorator.decorateQualityGateStatus(analysisDetails, almSettingDto, projectAlmSettingDto);
     }
 
@@ -167,7 +168,7 @@ public class PullRequestPostAnalysisTask implements PostProjectAnalysisTask {
         ALM alm = almSetting.getAlm();
 
         for (PullRequestBuildStatusDecorator pullRequestDecorator : pullRequestDecorators) {
-            if (alm == pullRequestDecorator.alm()) {
+            if (alm == pullRequestDecorator.alm() && pullRequestDecorator.isSupported(almSetting)) {
                 return Optional.of(pullRequestDecorator);
             }
         }
